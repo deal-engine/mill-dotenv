@@ -21,8 +21,8 @@ object meta {
   val publishVersion = (versionFromEnv orElse gitTag orElse gitSha).getOrElse("latest")
 }
 
-object dotenv extends Cross[Dotenv](meta.crossVersions: _*)
-class Dotenv(val crossScalaVersion: String) extends CrossScalaModule with PublishModule { self =>
+object dotenv extends Cross[Dotenv](meta.crossVersions)
+trait Dotenv extends CrossScalaModule with PublishModule { self =>
   def publishVersion = meta.publishVersion
 
   def artifactName = "mill-dotenv"
@@ -42,7 +42,7 @@ class Dotenv(val crossScalaVersion: String) extends CrossScalaModule with Publis
     ivy"com.lihaoyi::mill-scalalib:${meta.MILL_VERSION}"
   )
 
-  object tests extends Tests with TestModule.Utest {
+  object tests extends ScalaTests with TestModule.Utest {
     def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.7.11") ++ self.compileIvyDeps()
   }
 }

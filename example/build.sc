@@ -11,7 +11,7 @@ object hello extends ScalaModule with DotEnvModule {
   // by default dotenv will read `$PWD/.env` file
   // unless `def dotenvSources` is overriden.
 
-  object tests extends Tests with DotEnvModule with TestModule.Utest {
+  object tests extends ScalaTests with DotEnvModule with TestModule.Utest {
     // load.env-test for test environment
     override def dotenvSources = T.sources { os.pwd / ".env-test" }
 
