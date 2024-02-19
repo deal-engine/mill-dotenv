@@ -5,24 +5,24 @@ import scala.util.Properties
 
 object meta {
 
-  val crossVersions = Seq("2.13.8")
+  val crossVersions = Seq("2.13.12")
 
   implicit val wd: Path = pwd
 
-  def nonEmpty(s: String): Option[String] = s.trim match {
+  def nonEmpty(s: String): Option[String] = s.trim() match {
     case v if v.isEmpty => None
     case v => Some(v)
   }
 
   val MILL_VERSION = Properties.propOrNull("MILL_VERSION")
   val versionFromEnv = Properties.propOrNone("PUBLISH_VERSION")
-  val gitSha = nonEmpty(proc("git", "rev-parse", "--short", "HEAD").call().out.trim)
-  val gitTag = nonEmpty(proc("git", "tag", "-l", "-n0", "--points-at", "HEAD").call().out.trim)
+  val gitSha = nonEmpty(proc("git", "rev-parse", "--short", "HEAD").call().out.trim())
+  val gitTag = nonEmpty(proc("git", "tag", "-l", "-n0", "--points-at", "HEAD").call().out.trim())
   val publishVersion = (versionFromEnv orElse gitTag orElse gitSha).getOrElse("latest")
 }
 
-object dotenv extends Cross[Dotenv](meta.crossVersions: _*)
-class Dotenv(val crossScalaVersion: String) extends CrossScalaModule with PublishModule { self =>
+object dotenv extends Cross[Dotenv](meta.crossVersions)
+trait Dotenv extends CrossScalaModule with PublishModule { self =>
   def publishVersion = meta.publishVersion
 
   def artifactName = "mill-dotenv"
@@ -42,7 +42,7 @@ class Dotenv(val crossScalaVersion: String) extends CrossScalaModule with Publis
     ivy"com.lihaoyi::mill-scalalib:${meta.MILL_VERSION}"
   )
 
-  object tests extends Tests with TestModule.Utest {
+  object tests extends ScalaTests with TestModule.Utest {
     def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.7.11") ++ self.compileIvyDeps()
   }
 }
