@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 When creating a release always specify the `mill` and `scala` versions that were
 used to build the project. Since `mill` libs currently have no binary backwards compatibility.
 
+## 0.8.0
+
+- Upgrade to Mill 0.12.14
+- Upgrade to Scala 2.13.16
+- Address deprecations / polish DotEnvModule
+
 ## 0.7.0
 
 - Upgrade to Mill 0.11.6
