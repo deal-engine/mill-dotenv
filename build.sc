@@ -4,8 +4,7 @@ import mill._, os._, scalalib._, publish._
 import scala.util.Properties
 
 object meta {
-
-  val crossVersions = Seq("2.13.12")
+  val crossVersions = Seq("2.13.16")
 
   implicit val wd: Path = pwd
 
@@ -24,7 +23,7 @@ object dotenv extends Cross[Dotenv](meta.crossVersions)
 trait Dotenv extends CrossScalaModule with PublishModule { self =>
   def publishVersion = meta.publishVersion
 
-  def artifactName = "mill-dotenv"
+  override def artifactName = "mill-dotenv"
 
   def pomSettings = PomSettings(
     description = "mill support for twelve-factor apps. load environment variables from .env",
@@ -41,7 +40,9 @@ trait Dotenv extends CrossScalaModule with PublishModule { self =>
     ivy"com.lihaoyi::mill-scalalib:${mill.main.BuildInfo.millVersion}"
   )
 
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-deprecation")
+
   object tests extends ScalaTests with TestModule.Utest {
-    def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.7.11") ++ self.compileIvyDeps()
+    override def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.7.11") ++ self.compileIvyDeps()
   }
 }
