@@ -3,28 +3,23 @@ package mill.dotenv
 import mill._
 import scalalib._
 
-
 object DotEnvModule {
-
-  def parse(pathRef: PathRef):Map[String,String] = {
+  def parse(pathRef: PathRef): Map[String,String] =
     parse(os.read(pathRef.path))
-  }
 
   def parse(source: String): Map[String, String] = LINE_REGEX.findAllMatchIn(source)
     .map(keyValue => (keyValue.group(1), unescapeCharacters(removeQuotes(keyValue.group(2)))))
     .toMap
 
-  private def removeQuotes(value: String): String = {
+  private def removeQuotes(value: String): String =
     value.trim match {
       case quoted if quoted.startsWith("'") && quoted.endsWith("'") => quoted.substring(1, quoted.length - 1)
       case quoted if quoted.startsWith("\"") && quoted.endsWith("\"") => quoted.substring(1, quoted.length - 1)
       case unquoted => unquoted
     }
-  }
 
-  private def unescapeCharacters(value: String): String = {
+  private def unescapeCharacters(value: String): String =
     value.replaceAll("""\\([^$])""", "$1")
-  }
 
   // shamefuly copied from SbtDotenv
   // https://github.com/mefellows/sbt-dotenv/blob/master/src/main/scala/au/com/onegeek/sbtdotenv/SbtDotenv.scala
@@ -53,17 +48,14 @@ object DotEnvModule {
        )?                 # end trailing comment (optional)
        (?:$|\z)           # end of line
     """.r
-
-
 }
 
 trait DotEnvModule extends JavaModule {
+  def dotenvSources: T[Seq[PathRef]] = T.sources { os.pwd / ".env" }
 
-  def dotenvSources = T.sources { os.pwd / ".env" }
-
-  def dotenv = T.input {
+  def dotenv: T[Map[String, String]] = T.input {
     dotenvSources().map(DotEnvModule.parse).foldLeft(Map[String,String]()) { _ ++ _ }
   }
 
-  override def forkEnv = super.forkEnv() ++ dotenv()
+  override def forkEnv: T[Map[String, String]] = super.forkEnv() ++ dotenv()
 }
