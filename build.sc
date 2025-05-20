@@ -14,7 +14,6 @@ object meta {
     case v => Some(v)
   }
 
-  val MILL_VERSION = Properties.propOrNull("MILL_VERSION")
   val versionFromEnv = Properties.propOrNone("PUBLISH_VERSION")
   val gitSha = nonEmpty(proc("git", "rev-parse", "--short", "HEAD").call().out.trim())
   val gitTag = nonEmpty(proc("git", "tag", "-l", "-n0", "--points-at", "HEAD").call().out.trim())
@@ -38,8 +37,8 @@ trait Dotenv extends CrossScalaModule with PublishModule { self =>
     )
   )
 
-  def compileIvyDeps = Agg(
-    ivy"com.lihaoyi::mill-scalalib:${meta.MILL_VERSION}"
+  override def compileIvyDeps = Agg(
+    ivy"com.lihaoyi::mill-scalalib:${mill.main.BuildInfo.millVersion}"
   )
 
   object tests extends ScalaTests with TestModule.Utest {
